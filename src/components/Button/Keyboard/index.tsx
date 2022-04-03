@@ -1,22 +1,39 @@
-import React, { Children } from "react"
-import { ButtonStyle as Button } from "./style"
-import { Box, BoxProps, createTheme, ThemeProvider } from "@mui/material"
-import { alpha, styled } from "@mui/material/styles"
+import { ButtonStyle as Button } from "./style";
 interface IKeyboardButton {
-	keyboardNumber?: string
-	keyboardOperator?: string
+  keyboardKey: string;
+  color?: any;
+  onClick: any;
 }
 
-const BoxStyled = styled(Box)<BoxProps>(({ theme }) => ({
-	backgroundColor: theme.palette.secondary.main,
-}))
-
 export default function KeyboardButton(props: IKeyboardButton) {
-	const { keyboardNumber, keyboardOperator } = props
-
-	return (
-		<>
-			<Button variant="contained">{keyboardNumber}</Button>
-		</>
-	)
+  const { keyboardKey, onClick } = props;
+  function handleColorKey(key: string): string {
+    switch (key) {
+      case "/":
+        return "#CE50E7";
+      case "x":
+        return "#F37979";
+      case "-":
+        return "#7CB6F7";
+      case "+":
+        return "#F59020";
+      case "=":
+        return "#16CA7F";
+      default:
+        return "none";
+    }
+  }
+  return (
+    <Button
+      variant="contained"
+      focusRipple={false}
+      sx={{
+        backgroundColor: handleColorKey(keyboardKey),
+        "&:hover": { backgroundColor: handleColorKey(keyboardKey) },
+      }}
+      onClick={onClick(keyboardKey)}
+    >
+      {keyboardKey}
+    </Button>
+  );
 }
