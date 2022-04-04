@@ -31,7 +31,7 @@ export default function KeyboardButton(props: IKeyboardButton) {
         backgroundColor: handleColorKey(keyboardKey),
         "&:hover": { backgroundColor: handleColorKey(keyboardKey) },
       }}
-      onClick={onClick(keyboardKey)}
+      onClick={() => onClick(keyboardKey)}
     >
       {keyboardKey}
     </Button>

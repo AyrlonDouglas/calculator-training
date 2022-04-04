@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 // components
 import Nav from "../../components/Nav";
 // MUI
@@ -13,7 +13,12 @@ import { BoxValue, BoxKeyboard } from "./style";
 import KeyboardButton from "../../components/Button/Keyboard";
 
 export default function simplesCalculator(props: any) {
-  const [currentKey, setcurrentKey] = useState("");
+  const [currentNumber, setCurrentNumber] = useState("");
+  const [previousNumber, setPreviousNumber] = useState("");
+  const [lastOperator, setLastOperator] = useState("");
+  const [result, setResult] = useState(false);
+  const [historyOperations, setHistoryOperations] = useState("");
+  const [display, setDisplay] = useState("0");
   const keyboardNumbers = [
     "C",
     "+/-",
@@ -36,12 +41,90 @@ export default function simplesCalculator(props: any) {
     "del",
     "=",
   ];
+  const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-  const [historyOperations, setHistoryOperations] = useState("");
-  console.log(historyOperations);
-  function handleHistory(key: string) {
-    setHistoryOperations(key);
-  }
+  const handleOperation = (key: string) => {
+    if (numbers.includes(key)) {
+      if (result) {
+        setResult(false);
+        setCurrentNumber(key);
+        setPreviousNumber("");
+      } else if (!(key === "0" && currentNumber.length === 1)) {
+        setCurrentNumber((state: string) => state + key);
+      }
+    }
+    if (currentNumber.length > 1 && currentNumber[0] === "0") {
+      currentNumber.substring(1, currentNumber.length - 1);
+    }
+    console.log(currentNumber.length);
+    if (key === "del") del();
+    if (key === ".") dot(key);
+    if (key === "C") clear();
+    if (key === "+") sum();
+    if (key === "=" && previousNumber && currentNumber) equal();
+    if (key === "-") minus();
+  };
+
+  const minus = () => {
+    setLastOperator("-");
+    setResult(false);
+    if (!previousNumber) {
+      setPreviousNumber(currentNumber);
+      setCurrentNumber("");
+    } else {
+      setCurrentNumber((state) =>
+        (parseFloat(previousNumber) + parseFloat(state) * -1).toString()
+      );
+    }
+  };
+
+  const sum = () => {
+    setLastOperator("+");
+    setResult(false);
+    if (!previousNumber) {
+      setPreviousNumber(currentNumber);
+      setCurrentNumber("");
+    } else if (currentNumber) {
+      setCurrentNumber((state) =>
+        (parseFloat(previousNumber) + parseFloat(state)).toString()
+      );
+    }
+  };
+  const del = () => {
+    if (currentNumber.length > 0) {
+      setCurrentNumber((state) => state.substring(0, state.length - 1));
+    }
+  };
+  const dot = (key: string) => {
+    if (currentNumber.length === 0) {
+      setCurrentNumber("0.");
+    } else if (!currentNumber.includes(".")) {
+      setCurrentNumber((state) => state + key);
+    }
+  };
+  const clear = () => {
+    setDisplay("0");
+    setHistoryOperations("");
+    setCurrentNumber("");
+    setPreviousNumber("");
+  };
+
+  const equal = () => {
+    setResult(true);
+    setPreviousNumber("");
+
+    switch (lastOperator) {
+      case "+":
+        setCurrentNumber((state) =>
+          (parseFloat(previousNumber) + parseFloat(state)).toString()
+        );
+      case "-":
+        setCurrentNumber((state) =>
+          (parseFloat(previousNumber) - parseFloat(state)).toString()
+        );
+    }
+  };
+
   const generateKeyboard = (arr: string[]) =>
     arr.map((key) => (
       <Grid
@@ -52,7 +135,7 @@ export default function simplesCalculator(props: any) {
         justifyContent={"center"}
         alignItems={"center"}
       >
-        <KeyboardButton keyboardKey={key} onClick={handleHistory} />
+        <KeyboardButton keyboardKey={key} onClick={handleOperation} />
       </Grid>
     ));
 
@@ -67,7 +150,7 @@ export default function simplesCalculator(props: any) {
       >
         <Paper>
           <BoxValue>
-            <Grid>4,152</Grid>
+            <Grid>{currentNumber}</Grid>
             <Grid className="history-operation">{historyOperations}</Grid>
           </BoxValue>
           <BoxKeyboard>
