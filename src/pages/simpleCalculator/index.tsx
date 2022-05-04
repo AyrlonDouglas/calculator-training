@@ -111,6 +111,8 @@ export default function simplesCalculator(props: any) {
       } else return history;
     } else return "0";
   };
+
+  // as funções abaixo estão iguais, dps refatorar para ser apenas uma "global"
   const sum = () => {
     setCurrentNumber("");
     setDisplay(eval(handleHistoryForDisplay()));
