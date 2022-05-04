@@ -13,12 +13,9 @@ import { BoxValue, BoxKeyboard } from "./style";
 import KeyboardButton from "../../components/Button/Keyboard";
 
 export default function simplesCalculator(props: any) {
-  const [currentNumber, setCurrentNumber] = useState(0);
-  const [previousNumber, setPreviousNumber] = useState(0);
+  const [history, setHistory] = useState("");
+  const [currentNumber, setCurrentNumber] = useState("");
   const [result, setResult] = useState(0);
-  const [operator, setOperator] = useState("");
-  const [previousOperator, setPreviousOperator] = useState("");
-  const [historyOperations, setHistoryOperations] = useState("");
   const [display, setDisplay] = useState("");
   const keyboardNumbers = [
     "C",
@@ -28,7 +25,7 @@ export default function simplesCalculator(props: any) {
     "7",
     "8",
     "9",
-    "x",
+    "*",
     "4",
     "5",
     "6",
@@ -46,138 +43,106 @@ export default function simplesCalculator(props: any) {
   const [clearHistory, setClearHistory] = useState(false);
   const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
-  const handleHistory = (key: string) => {
-    setHistoryOperations((state: string) => {
-      if (clearHistory) {
+  const handleOperation = (key: string) => {
+    setCurrentNumber((state) => state + key);
+    setHistory((state: string) => {
+      if (clearHistory && numbers.includes(key)) {
         setClearHistory(false);
+
         return key;
-      } else if (
-        !numbers.includes(key) &&
-        key === historyOperations[historyOperations.length - 1]
-      ) {
-        return state;
+      } else if (clearHistory && !numbers.includes(key)) {
+        setClearHistory(false);
+        return eval(handleHistoryForDisplay());
+      }
+
+      if (history.length > 0) {
+        if (!numbers.includes(key) && key === state[state.length - 1]) {
+          return state;
+        } else if (
+          !numbers.includes(key) &&
+          !numbers.includes(state[state.length - 1]) &&
+          state[state.length - 1] !== key
+        ) {
+          return state.substring(0, state.length - 1) + key;
+        } else return state + key;
       } else {
-        return state + key;
+        return key;
       }
     });
 
-    if (clearDisplay && !numbers.includes(key)) {
-      setHistoryOperations(`${result}${key}`);
-    }
-  };
-  const handleDisplay = (key: string) => {
     if (clearDisplay && numbers.includes(key)) {
       setDisplay("");
       setClearDisplay(false);
-    } else if (clearDisplay && !numbers.includes(key)) {
-      setPreviousNumber(result);
-      setDisplay("");
+    } else {
       setClearDisplay(false);
     }
+
     if (numbers.includes(key)) {
-      setDisplay((stateDisplay: string) => {
-        setCurrentNumber((stateCurrentNumber) =>
-          parseFloat(stateDisplay + key)
-        );
-        return stateDisplay + key;
-      });
+      setDisplay((state) => state + key);
+    } else {
+      switch (key) {
+        case "del":
+          del();
+          break;
+        case "+":
+          sum();
+          break;
+        case "-":
+          subtraction();
+          break;
+        case "*":
+          multiplication();
+          break;
+        case "/":
+          division();
+          break;
+        case "=":
+          equal();
+          break;
+        default:
+          "";
+      }
     }
   };
-  const handleOperation = (key: string) => {
-    handleHistory(key);
-    handleDisplay(key);
-    if (!numbers.includes(key)) {
-      setPreviousOperator(operator);
-      setOperator(key);
-
-      if (key === "=") return equal();
-
-      handleOperator(
-        operator !== previousOperator && previousOperator
-          ? previousOperator
-          : key
-      );
-    }
-    console.log(key, "key");
+  const handleHistoryForDisplay = () => {
+    if (history.length > 0) {
+      if (!numbers.includes(history[history.length - 1])) {
+        return history.substring(0, history.length - 1);
+      } else return history;
+    } else return "0";
   };
-  // console.log(result, "result");
-
-  // console.log(operator, previousOperator);
-  const handleOperator = (operatorKey: string) => {
-    console.log(operatorKey, "operatorKey");
-    switch (operatorKey) {
-      case "del":
-        del();
-        break;
-      case "+":
-        sum();
-        break;
-      case "-":
-        subtraction();
-        break;
-      default:
-        return "";
-    }
-  };
-
-  const subtraction = () => {
-    if (!previousNumber && currentNumber) {
-      setResult(currentNumber);
-      setPreviousNumber(currentNumber);
-      setDisplay(currentNumber.toString());
-      setCurrentNumber(0);
-    } else if (previousNumber && currentNumber) {
-      setResult(previousNumber - currentNumber);
-      setPreviousNumber((state) => state - currentNumber);
-      setCurrentNumber(0);
-      setDisplay((previousNumber - currentNumber).toString());
-    } else if (!currentNumber && previousNumber) {
-      setResult(previousNumber);
-      setDisplay(previousNumber.toString());
-    }
-    setClearDisplay(true);
-  };
-
   const sum = () => {
-    if (!previousNumber && currentNumber) {
-      setResult(currentNumber);
-      setPreviousNumber(currentNumber);
-      setDisplay(currentNumber.toString());
-      setCurrentNumber(0);
-    } else if (previousNumber && currentNumber) {
-      setResult(previousNumber + currentNumber);
-      setPreviousNumber((state) => state + currentNumber);
-      setCurrentNumber(0);
-      setDisplay((previousNumber + currentNumber).toString());
-    } else if (!currentNumber && previousNumber) {
-      setResult(previousNumber);
-      setDisplay(previousNumber.toString());
-    }
+    setCurrentNumber("");
+    setDisplay(eval(handleHistoryForDisplay()));
     setClearDisplay(true);
   };
-
+  const subtraction = () => {
+    setCurrentNumber("");
+    setDisplay(eval(handleHistoryForDisplay()));
+    setClearDisplay(true);
+  };
+  const division = () => {
+    setCurrentNumber("");
+    setDisplay(eval(handleHistoryForDisplay()));
+    setClearDisplay(true);
+  };
+  const multiplication = () => {
+    setCurrentNumber("");
+    setDisplay(eval(handleHistoryForDisplay()));
+    setClearDisplay(true);
+  };
   const equal = () => {
-    if (operator === "=") return;
-    handleOperator(operator);
-
+    setCurrentNumber("");
+    setDisplay(eval(handleHistoryForDisplay()));
     setClearDisplay(true);
-    setCurrentNumber(0);
-    setPreviousNumber(0);
     setClearHistory(true);
-    setPreviousOperator("");
   };
-
   const del = () => {
     setDisplay("");
-    setCurrentNumber(0);
-    setPreviousNumber(0);
-    setOperator("");
-    setPreviousOperator("");
+    setCurrentNumber("");
     setResult(0);
-    setHistoryOperations("");
-    setPreviousOperator("");
+    setHistory("");
   };
-
   const generateKeyboard = (arr: string[]) =>
     arr.map((key, index) => (
       <Grid
@@ -205,7 +170,7 @@ export default function simplesCalculator(props: any) {
         <Paper>
           <BoxValue>
             <Grid>{display}</Grid>
-            <Grid className="history-operation">{historyOperations}</Grid>
+            <Grid className="history-operation">{history}</Grid>
           </BoxValue>
           <BoxKeyboard>
             <Grid container spacing={1}>

@@ -11,7 +11,7 @@ export default function KeyboardButton(props: IKeyboardButton) {
     switch (key) {
       case "/":
         return "#CE50E7";
-      case "x":
+      case "*":
         return "#F37979";
       case "-":
         return "#7CB6F7";
@@ -33,7 +33,7 @@ export default function KeyboardButton(props: IKeyboardButton) {
       }}
       onClick={() => onClick(keyboardKey)}
     >
-      {keyboardKey}
+      {keyboardKey === "*" ? "x" : keyboardKey}
     </Button>
   );
 }
