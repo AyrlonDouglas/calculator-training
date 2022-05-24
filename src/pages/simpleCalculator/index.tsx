@@ -8,18 +8,16 @@ import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 
 // style
-import { BoxValue, BoxKeyboard } from "./style";
+import { BoxValue, BoxKeyboard, GridValue } from "./style";
 // components
 import KeyboardButton from "../../components/Button/Keyboard";
 
 export default function simplesCalculator(props: any) {
   const [history, setHistory] = useState("");
-  const [currentNumber, setCurrentNumber] = useState("");
-  const [result, setResult] = useState(0);
   const [display, setDisplay] = useState("");
   const keyboardNumbers = [
-    "C",
-    "+/-",
+    "E",
+    "±",
     "%",
     "/",
     "7",
@@ -36,7 +34,7 @@ export default function simplesCalculator(props: any) {
     "+",
     "0",
     ".",
-    "del",
+    "C",
     "=",
   ];
   const [clearDisplay, setClearDisplay] = useState(false);
@@ -44,7 +42,7 @@ export default function simplesCalculator(props: any) {
   const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
   const handleOperation = (key: string) => {
-    setCurrentNumber((state) => state + key);
+    // rever esse erro de tipagem depois
     setHistory((state: string) => {
       if (clearHistory && numbers.includes(key)) {
         setClearHistory(false);
@@ -52,10 +50,11 @@ export default function simplesCalculator(props: any) {
         return key;
       } else if (clearHistory && !numbers.includes(key)) {
         setClearHistory(false);
-        return eval(handleHistoryForDisplay());
+
+        return eval(handleHistoryForDisplay()) + key;
       }
 
-      if (history.length > 0) {
+      if (history && history.length > 0) {
         if (!numbers.includes(key) && key === state[state.length - 1]) {
           return state;
         } else if (
@@ -64,8 +63,17 @@ export default function simplesCalculator(props: any) {
           state[state.length - 1] !== key
         ) {
           return state.substring(0, state.length - 1) + key;
-        } else return state + key;
-      } else {
+        } else if (history[history.length - 1] === "." && key === ".") {
+          return state;
+        } else if (
+          history[history.length - 1] === "." &&
+          !numbers.includes(key)
+        ) {
+          return state + "0" + key;
+        } else {
+          return state + key;
+        }
+      } else if (numbers.includes(key)) {
         return key;
       }
     });
@@ -73,76 +81,55 @@ export default function simplesCalculator(props: any) {
     if (clearDisplay && numbers.includes(key)) {
       setDisplay("");
       setClearDisplay(false);
-    } else {
+    } else if (clearDisplay && !numbers.includes(key)) {
       setClearDisplay(false);
     }
 
     if (numbers.includes(key)) {
-      setDisplay((state) => state + key);
+      if (clearDisplay) {
+        setDisplay("");
+        setClearDisplay(false);
+      } else {
+        setClearDisplay(false);
+      }
+
+      if (display[display.length - 1] === "." && key === ".") {
+        setDisplay((state) => state);
+      } else {
+        setDisplay((state) => state + key);
+      }
     } else {
       switch (key) {
-        case "del":
+        case "C":
           del();
-          break;
-        case "+":
-          sum();
-          break;
-        case "-":
-          subtraction();
-          break;
-        case "*":
-          multiplication();
-          break;
-        case "/":
-          division();
           break;
         case "=":
           equal();
           break;
         default:
-          "";
+          genericOperation(key);
       }
     }
   };
   const handleHistoryForDisplay = () => {
-    if (history.length > 0) {
+    if (history && history.length > 0) {
       if (!numbers.includes(history[history.length - 1])) {
         return history.substring(0, history.length - 1);
       } else return history;
     } else return "0";
   };
 
-  // as funções abaixo estão iguais, dps refatorar para ser apenas uma "global"
-  const sum = () => {
-    setCurrentNumber("");
-    setDisplay(eval(handleHistoryForDisplay()));
-    setClearDisplay(true);
-  };
-  const subtraction = () => {
-    setCurrentNumber("");
-    setDisplay(eval(handleHistoryForDisplay()));
-    setClearDisplay(true);
-  };
-  const division = () => {
-    setCurrentNumber("");
-    setDisplay(eval(handleHistoryForDisplay()));
-    setClearDisplay(true);
-  };
-  const multiplication = () => {
-    setCurrentNumber("");
+  const genericOperation = (key: string) => {
     setDisplay(eval(handleHistoryForDisplay()));
     setClearDisplay(true);
   };
   const equal = () => {
-    setCurrentNumber("");
     setDisplay(eval(handleHistoryForDisplay()));
     setClearDisplay(true);
     setClearHistory(true);
   };
   const del = () => {
     setDisplay("");
-    setCurrentNumber("");
-    setResult(0);
     setHistory("");
   };
   const generateKeyboard = (arr: string[]) =>
@@ -171,8 +158,8 @@ export default function simplesCalculator(props: any) {
       >
         <Paper>
           <BoxValue>
-            <Grid>{display}</Grid>
-            <Grid className="history-operation">{history}</Grid>
+            <GridValue>{display}</GridValue>
+            <GridValue className="history-operation">{history}</GridValue>
           </BoxValue>
           <BoxKeyboard>
             <Grid container spacing={1}>

@@ -1,13 +1,17 @@
 import Box, { BoxProps } from "@mui/material/Box";
 import styled from "@mui/material/styles/styled";
-import Grid from "@mui/material/Grid";
+import Grid, { GridProps } from "@mui/material/Grid";
 
-export const BoxValue = styled(Box)<BoxProps>(({ theme }) => ({
+interface GridValueProps extends GridProps {
+  history?: boolean;
+}
+
+export const BoxValue = styled(Box)<GridValueProps>(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
   alignItems: "flex-end",
-  height: "7rem",
+  minHeight: "7rem",
   fontSize: "1.5rem",
   backgroundColor: theme.palette.background.default,
   padding: theme.spacing(2),
@@ -17,7 +21,11 @@ export const BoxValue = styled(Box)<BoxProps>(({ theme }) => ({
     fontSize: "1rem",
   },
 }));
-
+export const GridValue = styled(Grid)<GridValueProps>(({ theme }) => ({
+  wordWrap: "break-word",
+  width: "100%",
+  textAlign: "right",
+}));
 export const BoxKeyboard = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   display: "flex",
