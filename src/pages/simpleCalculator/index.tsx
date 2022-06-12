@@ -2,10 +2,8 @@ import React, { useState, useCallback, useEffect } from "react";
 // components
 import Nav from "../../components/Nav";
 // MUI
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Container from "@mui/material/Container";
-import Paper from "@mui/material/Paper";
+
+import { Typography, Paper, Container, Grid, Box } from "@mui/material";
 
 // style
 import { BoxValue, BoxKeyboard, GridValue } from "./style";
@@ -42,7 +40,6 @@ export default function simplesCalculator(props: any) {
   const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
   const handleOperation = (key: string) => {
-    // rever esse erro de tipagem depois
     setHistory((state: string) => {
       if (clearHistory && numbers.includes(key)) {
         setClearHistory(false);
@@ -63,19 +60,43 @@ export default function simplesCalculator(props: any) {
           state[state.length - 1] !== key
         ) {
           return state.substring(0, state.length - 1) + key;
-        } else if (history[history.length - 1] === "." && key === ".") {
+        } else if (key === "." && history[history.length - 1] === ".") {
           return state;
         } else if (
           history[history.length - 1] === "." &&
           !numbers.includes(key)
         ) {
           return state + "0" + key;
+        } else if (key === ".") {
+          // verifica se já existe "." entre operadores
+          const positionOperador = [];
+          for (let [index, value] of history.split("").entries()) {
+            if (!numbers.includes(value)) {
+              positionOperador.push(index);
+            }
+          }
+          if (positionOperador.length > 0) {
+            for (
+              let i = positionOperador[positionOperador.length - 1];
+              i < history.length;
+              i++
+            ) {
+              if (history[i] === ".") return state;
+            }
+          } else {
+            if (history.indexOf(".") !== -1) {
+              return state;
+            } else return state + key;
+          }
+
+          return state + key;
         } else {
           return state + key;
         }
       } else if (numbers.includes(key)) {
         return key;
       }
+      return "";
     });
 
     if (clearDisplay && numbers.includes(key)) {
@@ -93,7 +114,10 @@ export default function simplesCalculator(props: any) {
         setClearDisplay(false);
       }
 
-      if (display[display.length - 1] === "." && key === ".") {
+      if (
+        key === "." &&
+        (display[display.length - 1] === "." || history.indexOf(".") !== -1)
+      ) {
         setDisplay((state) => state);
       } else {
         setDisplay((state) => state + key);
@@ -167,6 +191,12 @@ export default function simplesCalculator(props: any) {
             </Grid>
           </BoxKeyboard>
         </Paper>
+        <Typography sx={{ fontSize: "0.7rem" }} color="GrayText">
+          * O operador % calcula o resto.
+        </Typography>
+        <Typography sx={{ fontSize: "0.7rem" }} color="GrayText">
+          ** Por hora E e ± estão desabilitados.
+        </Typography>
       </Container>
     </>
   );

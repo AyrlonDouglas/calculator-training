@@ -18,6 +18,7 @@ export const theme = createTheme({
     warning: { main: "#ffd60a" },
     background: {
       default: "#F5F5F5",
+      paper: "#e1e1e1",
     },
   },
 

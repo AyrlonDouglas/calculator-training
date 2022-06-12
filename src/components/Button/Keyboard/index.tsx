@@ -19,6 +19,8 @@ export default function KeyboardButton(props: IKeyboardButton) {
         return "#F59020";
       case "=":
         return "#16CA7F";
+      case "%":
+        return "#d30c799d";
       default:
         return "none";
     }
@@ -32,6 +34,16 @@ export default function KeyboardButton(props: IKeyboardButton) {
         "&:hover": { backgroundColor: handleColorKey(keyboardKey) },
       }}
       onClick={() => onClick(keyboardKey)}
+      disabled={(() => {
+        switch (keyboardKey) {
+          case "E":
+            return true;
+          case "±":
+            return true;
+          default:
+            return undefined;
+        }
+      })()}
     >
       {keyboardKey === "*" ? "x" : keyboardKey}
     </Button>
